@@ -1,0 +1,50 @@
+
+body{
+    background-image: url("../../images/background_image.jpg");
+}
+
+.jumbotron{
+    background-color: rgb(238, 238, 238, 0.7 );
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.createRecipeForm{
+    color : rgb(25, 12, 3);
+    font-family: cursive;
+}
+
+.createRecipeTitle{
+    color : rgb(15, 6, 0);
+    font-family: cursive;
+}
+
+.profile-picture-navbar{
+    width: 40px;
+    margin-left: 0.5rem;
+}
+
+.username-navbar{
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+}
+
+.nopad{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.deck-homePage{
+    margin-top : 1rem;
+    margin-bottom : 1rem;
+}
+
+.card-img-resized{
+    height: 250px;
+    width: 338px;
+}
+
+textarea {
+        resize: none; 
+}
+    
