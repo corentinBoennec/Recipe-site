@@ -10,22 +10,61 @@ import { ingredientActions } from "../_actions";
 
 
 
+
+
 const CreateRecipePage = () => {
   const [recipeName, setName] = useState(" "); 
   const [description, setDescription] = useState(" "); 
   const [origin, setOrigin] = useState(" ");  
   const [nbEaters, setNbEaters] = useState(0); 
-  const [imgUrl, setImgUrl] = useState(React.useRef(null));
+  const [imgUrl, setImgUrl] = useState(" ");
   const [additionnalNoteFromAuthor, setAdditionnalNoteFromAuthor] = useState(" "); 
   const [steps, setSteps] = useState([{ content: " " }]); 
   const [ingredients, setIngredients] = useState([{ name: " ", quantity: 0, unit : "" }]); 
 
   const [submitted, setSubmitted] = useState(false);
-  const [allIngredients, setAllIngredients] = useState(null);
   const [ingredientsOptions, setIngredientsOptions] = useState(null);
 
-  
+  const [image, setImage] = useState('');
 
+  const presetForCloudUpload = "cfbumrr7";
+  const urlTocloud = "https://api.cloudinary.com/v1_1/dwkymyolp/image/upload";
+  const uploadedImage = React.useRef(null);
+  const imageUploader = React.useRef(null);
+
+  const handleImageUpload = e => {
+    setImage(e.target.files[0]);
+    const [file] = e.target.files;
+    if (file) {
+      const reader = new FileReader();
+      const { current } = uploadedImage;
+      current.file = file;
+      reader.onload = e => {
+        current.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onUpload = () => {
+    const formData = new FormData();
+    formData.append('file', image);
+    // replace this with your upload preset name
+    formData.append('upload_preset', presetForCloudUpload);
+    const options = {
+      method: 'POST',
+      body: formData,
+    };
+    
+    // replace cloudname with your Cloudinary cloud_name
+    return fetch(urlTocloud, options)
+      .then(res => res.json())
+      .then(res => setImgUrl(res.url))
+      .catch(err => console.log(err));
+     
+  };
+
+ 
   const unitOptions = [
     { value: "mg", label: "mg" }, { value: "g", label: "g" }, { value: "kg", label: "kg" }, { value : "lb", label: "lb"},
     { value: "l", label: "l" }, { value: "cl", label: "cl" }, { value: "ml", label: "ml" },
@@ -36,7 +75,6 @@ const CreateRecipePage = () => {
   const fix = null; //here to call useeffect only once at the begining need to be done another way
   useEffect(() => {
     recipeActions.getAllIngredient().then(value => {
-      setAllIngredients(value);
       setIngredientsOptions(value.map(ing => {
         return{
           'value' : ing.name,
@@ -97,40 +135,11 @@ const CreateRecipePage = () => {
     (values);
   };
 
-
-  /*const handleChange = (e) => {
-      const { name, value } = e.target;
-      this.setState({ [name]: value });
-  }*/
-
-  const uploadedImage = React.useRef(null);
-  const imageUploader = React.useRef(null);
-
-  const handleImageUpload = e => {
-    const [file] = e.target.files;
-    if (file) {
-      const reader = new FileReader();
-      const { current } = uploadedImage;
-      current.file = file;
-      reader.onload = e => {
-        current.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setter(value);
-  }
-
-
   const handleAddStep = () => {
     const values = [...steps];
     values.push({ content: "" });
     setSteps(values);
   };
-
 
   const handleRemoveStep = () => {
     const values = [...steps];
@@ -292,8 +301,9 @@ const CreateRecipePage = () => {
 */}
 
 
+      
 
-         <div
+      <div
       style={{
         display: "flex",
         flexDirection: "column",
@@ -310,7 +320,6 @@ const CreateRecipePage = () => {
           display: "none"
         }}
       />
-      
       <div
         style={{
           maxWidth:'300px',
@@ -319,29 +328,25 @@ const CreateRecipePage = () => {
           height: '75px',
           border: "1px dashed black"
         }}
-        onClick={() => {
-          imageUploader.current.click();
-          style.width = 'auto';
-          style.height = 'auto';
-        }
-        }
+        onClick={() => imageUploader.current.click()}
       >
         <img
           ref={uploadedImage}
           style={{
-            width: "100%",
-            height: "100%",
+            maxWidth:'300px',
+          maxHeight:'300px',
           }}
         />
       </div>
-      Click to add an image to make your recipe beautiful
-   {/* </div> */}
+      Click to upload Image
+      <button onClick={onUpload} className='btn center'>
+          Get Url 
+        </button>
+      <label htmlFor="name">You can put an url from the web</label>
+      <input className='file-path validate' type='text' value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} />
+    </div>
 
-
-
-
-
-        </div>
+    
        
         {/*additionnal note */}
         <div className={'form-group' + (submitted && !additionnalNoteFromAuthor ? ' has-error' : '')}>
@@ -366,13 +371,4 @@ const CreateRecipePage = () => {
 
 }
 
-/*
-function mapStateToProps(state) {
-  const { testingUp } = state.test;
-  return {
-    testingUp
-  };
-}
-
-const connectedTestPage = connect(mapStateToProps)(TestPage);*/
 export {CreateRecipePage }; 

@@ -50,9 +50,7 @@ function HomePage() {
     }
 
     var myImage = [new Image(338, 253), new Image(338, 253), new Image(338, 253)];
-    myImage[1].src = '../../images/dish1.jpg';
-    myImage[2].src = '../../images/dish2.jpg';
-    myImage[0].src = '../../images/dish3.jpg';
+
 
     return (
         <div className="container-fluid">
@@ -62,7 +60,7 @@ function HomePage() {
             {groupedRecipes.map((groupe, index) =>
                             <div className="card-deck deck-homePage" >
                             <div className="card">
-                                <img className="card-img-top" src={myImage[0].src} alt="Card image cap" />
+                                <img className="card-img-top" src={groupe.recipe0.imgUrl} alt="Card image cap" />
                                 <div className="card-body">
                                     <h5 className="card-title">{groupe.recipe0.name}</h5>
                                     <p className="card-text">{groupe.recipe0.description}</p>
@@ -70,7 +68,7 @@ function HomePage() {
                                 </div>
                             </div>
                             <div className="card">
-                                <img className="card-img-top" src={myImage[1].src} alt="Card image cap" />
+                                <img className="card-img-top" src={groupe.recipe1.imgUrl} alt="Card image cap" />
                                 <div className="card-body">
                                     <h5 className="card-title">{groupe.recipe1.name}</h5>
                                     <p className="card-text">{groupe.recipe1.description}</p>
@@ -78,7 +76,7 @@ function HomePage() {
                                 </div>
                             </div>
                             <div className="card">
-                                <img className="card-img-top" src={myImage[2].src} alt="Card image cap" />
+                                <img className="card-img-top" src={groupe.recipe2.imgUrl} alt="Card image cap" />
                                 <div className="card-body">
                                     <h5 className="card-title">{groupe.recipe2.name}</h5>
                                     <p className="card-text">{groupe.recipe2.description}</p>
@@ -89,83 +87,9 @@ function HomePage() {
             
                     )}
             
-            <div className="col-lg-8 offset-lg-2">
-                <h1>Hi {user.firstName}!</h1>
-                <p>You're logged in with React Hooks!!</p>
-                <h3>All registered users:</h3>
-                {users.loading && <em>Loading users...</em>}
-                {users.error && <span className="text-danger">ERROR: {users.error}</span>}
-                {users.items &&
-                    <ul>
-                        {users.items.map((user, index) =>
-                            <li key={user.username}>
-                                {user.username + ' ' + user.email}
-                            </li>
-                        )}
-                    </ul>
-                }
-                <p>
-                    <Link to="/login">Logout</Link>
-                </p>
-                <p>
-                    <Link to="/createRecipe">Create Recipe</Link>
-                </p>
-            </div>
         </div>
     );
 
 }
 
 export { HomePage };
-/*
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-
-import { userActions } from '../_actions';
-
-class HomePage extends React.Component {
-    componentDidMount() {
-        this.props.dispatch(userActions.getAll());
-    }
-
-    render() {
-        const { user, users } = this.props;
-        return (
-            <div className="col-md-6 col-md-offset-3">
-                <h1>Hi {user.username}!</h1>
-                <p>You're logged in with React & JWT!!</p>
-                <h3>Users from secure api end point:</h3>
-                {users.loading && <em>Loading users...</em>}
-                {users.error && <span className="text-danger">ERROR: {users.error}</span>}
-                {users.items &&
-                    <ul>
-                        {users.items.map((user, index) =>
-                            <li key={user.username}>
-                                {user.username + ' ' + user.email}
-                            </li>
-                        )}
-                    </ul>
-                }
-                <p>
-                    <Link to="/login">Logout</Link>
-                </p>
-                <p>
-                    <Link to="/createRecipe">Create Recipe</Link>
-                </p>
-            </div>
-        );
-    }
-}
-
-function mapStateToProps(state) {
-    const { users, authentication } = state;
-    const { user } = authentication;
-    return {
-        user,
-        users
-    };
-}
-
-const connectedHomePage = connect(mapStateToProps)(HomePage);
-export { connectedHomePage as HomePage };*/

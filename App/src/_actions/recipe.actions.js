@@ -8,7 +8,9 @@ export const recipeActions = {
     update,
     addRecipe,
     getAllIngredient,
-    getAll
+    getAll,
+    uploadImg
+
 
 };
 
@@ -63,4 +65,8 @@ function addRecipe(recipe) {
 
 function getAll() {
     return recipeService.getAll();
+}
+
+function uploadImg(data){
+    return recipeService.uploadImg(data);
 }

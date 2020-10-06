@@ -7,12 +7,15 @@ const User = db.User;
 const Ingredient = db.Ingredient;
 
 
+
+
 module.exports = {
     create,
     update,
     getAll,
     getByName,
-    delete : _delete
+    delete : _delete,
+    uploadImg
 };
 
 
@@ -100,4 +103,15 @@ async function getByName(name) {
 
 async function getAll() {
     return await Recipe.find({});
+}
+
+async function uploadImg(url, formData){
+    try {
+        const res = await axios.post(url, formData);
+        const imageUrl = res.data.secure_url;
+        return imageUrl;
+    }
+    catch(err) {
+        console.error(err);
+      }
 }

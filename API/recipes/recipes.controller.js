@@ -13,6 +13,8 @@ router.get('/', getAll);
 
 router.delete('/:name', _delete);
 
+router.post('/uploadImg', uploadImg);
+
 
 //to test
 
@@ -59,6 +61,12 @@ function getAll(req, res, next) {
 function _delete(req, res, next) {
     recipeService.delete(req.params.name, req.user.sub)
         .then(() => res.json({}))
+        .catch(err => next(err));
+}
+
+function uploadImg(req, res, next){
+    recipeService.uploadImg(req.params.url, req.params.formData)
+        .then(() => res.json(url))
         .catch(err => next(err));
 }
 /*

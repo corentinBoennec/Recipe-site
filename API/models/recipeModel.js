@@ -12,7 +12,8 @@ const Recipe = new Schema({
     //tools: [String]
     steps: [String /*, image: */],
     additionalNoteFromAutor: String,
-    author: String
+    author: String,
+    imgUrl: String
 });
 
 

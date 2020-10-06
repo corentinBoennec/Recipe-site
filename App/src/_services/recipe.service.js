@@ -1,12 +1,14 @@
 import config from 'config';
 import { authHeader } from '../_helpers';
-
+import { recipe } from '../../../API/models';
+import axios from 'axios';
 
 export const recipeService = {
     update,
     create,
     getAllIngredient,
-    getAll
+    getAll,
+    uploadImg
 };
 
 
@@ -52,6 +54,23 @@ function getAll(){
     return fetch(`${config.apiUrl}/recipes`, requestOptions).then(handleResponse);    
 }
 
+function uploadImg(data){
+    try {
+        const promesse = new Promise((resolve, reject) => {
+            const res = axios.post(data.url, data.formData);
+            resolve(res);
+        });
+
+        promesse.then((res) => {
+            return res.data.secure_url;
+        });
+    }
+    catch(err) {
+        console.error(err);
+    }
+
+}
+
 function handleResponse(response) {
     return response.text().then(text => {
         const data = text && JSON.parse(text);
@@ -70,3 +89,4 @@ function handleResponse(response) {
         return data;
     });
 }
+

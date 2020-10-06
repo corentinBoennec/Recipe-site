@@ -8,7 +8,7 @@ import { PrivateRoute } from '../_components';
 import { HomePage } from '../HomePage';
 import { LoginPage } from '../LoginPage';
 import { RegisterPage } from '../RegisterPage';
-import { CreateRecipePage } from '../TestPage';
+import { CreateRecipePage } from '../CreateRecipePage';
 import { create } from '../../../API/models/userModel';
 
 
