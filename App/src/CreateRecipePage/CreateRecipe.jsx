@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment, useEffect, useRef } from "react";
 import Select from 'react-select'
 import { Link } from 'react-router-dom';
 import { useDispatch, connect, useSelector } from 'react-redux';
@@ -13,14 +13,14 @@ import { ingredientActions } from "../_actions";
 
 
 const CreateRecipePage = () => {
-  const [recipeName, setName] = useState(" "); 
-  const [description, setDescription] = useState(" "); 
-  const [origin, setOrigin] = useState(" ");  
-  const [nbEaters, setNbEaters] = useState(0); 
+  const [recipeName, setName] = useState(" ");
+  const [description, setDescription] = useState(" ");
+  const [origin, setOrigin] = useState(" ");
+  const [nbEaters, setNbEaters] = useState(0);
   const [imgUrl, setImgUrl] = useState(" ");
-  const [additionnalNoteFromAuthor, setAdditionnalNoteFromAuthor] = useState(" "); 
-  const [steps, setSteps] = useState([{ content: " " }]); 
-  const [ingredients, setIngredients] = useState([{ name: " ", quantity: 0, unit : "" }]); 
+  const [additionnalNoteFromAuthor, setAdditionnalNoteFromAuthor] = useState(" ");
+  const [steps, setSteps] = useState([{ content: " " }]);
+  const [ingredients, setIngredients] = useState([{ name: " ", quantity: 0, unit: "" }]);
 
   const [submitted, setSubmitted] = useState(false);
   const [ingredientsOptions, setIngredientsOptions] = useState(null);
@@ -29,8 +29,8 @@ const CreateRecipePage = () => {
 
   const presetForCloudUpload = "cfbumrr7";
   const urlTocloud = "https://api.cloudinary.com/v1_1/dwkymyolp/image/upload";
-  const uploadedImage = React.useRef(null);
-  const imageUploader = React.useRef(null);
+  const uploadedImage = useRef(null);
+  const imageUploader = useRef(null);
 
   const handleImageUpload = e => {
     setImage(e.target.files[0]);
@@ -46,27 +46,28 @@ const CreateRecipePage = () => {
     }
   };
 
-  const onUpload = () => {
-    const formData = new FormData();
-    formData.append('file', image);
-    // replace this with your upload preset name
-    formData.append('upload_preset', presetForCloudUpload);
-    const options = {
-      method: 'POST',
-      body: formData,
-    };
-    
-    // replace cloudname with your Cloudinary cloud_name
-    return fetch(urlTocloud, options)
-      .then(res => res.json())
-      .then(res => setImgUrl(res.url))
-      .catch(err => console.log(err));
-     
+  const getUrlForImage = () => {
+    if (image) {
+      const formData = new FormData();
+      formData.append('file', image);
+      formData.append('upload_preset', presetForCloudUpload);
+      const options = {
+        method: 'POST',
+        body: formData,
+      };
+
+      return fetch(urlTocloud, options)
+        .then(res => res.json())
+        .then(res => setImgUrl(res.url))
+        .catch(err => console.log(err));
+    }
+
+
   };
 
- 
+
   const unitOptions = [
-    { value: "mg", label: "mg" }, { value: "g", label: "g" }, { value: "kg", label: "kg" }, { value : "lb", label: "lb"},
+    { value: "mg", label: "mg" }, { value: "g", label: "g" }, { value: "kg", label: "kg" }, { value: "lb", label: "lb" },
     { value: "l", label: "l" }, { value: "cl", label: "cl" }, { value: "ml", label: "ml" },
     { value: "tsp", label: "tsp" }, { value: "Tbs.", label: "Tbs." }, { value: "cup", label: "cup" }, { value: "oz", label: "oz" },
     { value: "unit", label: "unit" }, { value: "", label: "" }
@@ -76,9 +77,9 @@ const CreateRecipePage = () => {
   useEffect(() => {
     recipeActions.getAllIngredient().then(value => {
       setIngredientsOptions(value.map(ing => {
-        return{
-          'value' : ing.name,
-          'label' : ing.name
+        return {
+          'value': ing.name,
+          'label': ing.name
         }
       }));
     });
@@ -89,22 +90,40 @@ const CreateRecipePage = () => {
     e.preventDefault();
     setSubmitted(true);
 
-    const valid = (recipeName && description && ingredients && nbEaters && steps);
-    if(valid){
-      const recipe = {
-        'name': recipeName,
-        'description' : description,
-        'nbEaters' : nbEaters,
-        'additionnalNoteFromAuthor' : additionnalNoteFromAuthor,
-        'origin' : origin,
-        'imgUrl' : imgUrl,
-        'steps' : steps.map(s => s.content)
-        //'ingredients' : ingredients
-      }
-
-        console.log("recipe before addRecipe" , recipe);
-
-        recipeActions.addRecipe(recipe);
+    const valid = (recipeName && description && ingredients && nbEaters && steps && (imgUrl || image));
+    if (valid) {
+      const UrlPromise = new Promise((resolve, reject) => {
+        if(image)
+        {
+          const url = getUrlForImage();
+          resolve(url);
+        }
+        else
+        {
+          const url = imgUrl;
+          resolve(url);
+        }
+     });
+       
+      UrlPromise.then((url) => {
+        console.log(url);
+          setImgUrl(url);
+          const recipe = {
+            'name': recipeName,
+            'description': description,
+            'nbEaters': nbEaters,
+            'additionnalNoteFromAuthor': additionnalNoteFromAuthor,
+            'origin': origin,
+            'imgUrl': imgUrl,
+            'steps': steps.map(s => s.content)
+            //'ingredients' : ingredients
+          }
+    
+          console.log("recipe before addRecipe", recipe);
+    
+          recipeActions.addRecipe(recipe);
+        });
+     
     }
   };
 
@@ -115,21 +134,21 @@ const CreateRecipePage = () => {
   };
 
   const handleIngredientNameChange = (index, event) => {
-    console.log("event name : " , event);
+    console.log("event name : ", event);
     const values = [...ingredients];
     values[index].name = event.value;
     setIngredients(values);
   };
 
   const handleIngredientQuantityChange = (index, event) => {
-    console.log("event qt : " , event);
+    console.log("event qt : ", event);
     const values = [...ingredients];
     values[index].quantity = event.target.value;
     setIngredients(values);
   };
 
   const handleIngredientUnitChange = (index, event) => {
-    console.log("event unit : " , event);
+    console.log("event unit : ", event);
     const values = [...ingredients];
     values[index].unit = event.value;
     (values);
@@ -150,7 +169,7 @@ const CreateRecipePage = () => {
 
   const handleAddIngredient = () => {
     const values = [...ingredients];
-    values.push({ name: "", quantity : "" });
+    values.push({ name: "", quantity: "" });
     setIngredients(values);
   };
 
@@ -185,7 +204,7 @@ const CreateRecipePage = () => {
           <input type="origin" className="form-control" name="origin" value={origin} onChange={(e) => setOrigin(e.target.value)} />
         </div>
 
-{/* steps */}
+        {/* steps */}
         <div className="form-group">
           {steps.map((step, index) => (
             <Fragment key={`${step}~${index}`}>
@@ -204,41 +223,40 @@ const CreateRecipePage = () => {
 
             </Fragment>
           ))}
-          <div className="row">
+          <div class="btn-group float-right" role="group" aria-label="Basic example">
               <button
-                className="btn btn-link"
+                className="btn btn-secondary"
                 type="button"
                 onClick={() => handleRemoveStep()}
               >
-              
                 -
-                          </button>
-                          
-      
+              </button>
               <button
-                className="btn btn-link"
+                className="btn btn-secondary"
                 type="button"
                 onClick={() => handleAddStep()}
               >
                 +
-                          </button>
-          </div>
+              </button>
+
+            </div>
+            <br></br>
         </div>
 
 
-{/* Ingredients */}
+        {/* Ingredients */}
         <div className="form-row">
           {ingredients.map((ingredient, index) => (
             <Fragment key={`${ingredient}~${index}`}>
 
               <div className="form-group col-sm-12">
                 <label htmlFor="ingredients">ingredient n° {index + 1}</label>
-                <Select 
-                    name="name" 
-                    id="ing" 
-                    options={ingredientsOptions}
-                    onChange={event => handleIngredientNameChange(index, event)}
-                    />
+                <Select
+                  name="name"
+                  id="ing"
+                  options={ingredientsOptions}
+                  onChange={event => handleIngredientNameChange(index, event)}
+                />
               </div>
               <div className="form-group col-sm-6">
                 <label htmlFor="quantity">quantity</label>
@@ -254,44 +272,47 @@ const CreateRecipePage = () => {
 
               <div className="form-group col-sm-6">
                 <label htmlFor="unit">unit </label>
-                <Select 
-                    name="unit" 
-                    id="unit" 
-                    options={unitOptions}
-                    onChange={event => handleIngredientUnitChange(index, event)}
-                    />
+                <Select
+                  name="unit"
+                  id="unit"
+                  options={unitOptions}
+                  onChange={event => handleIngredientUnitChange(index, event)}
+                />
               </div>
 
             </Fragment>
           ))}
         </div>
-        <div className="row">
-            <button
-              className="btn btn-link"
-              type="button"
-              onClick={() => handleRemoveIngredient()}
-            >
-              -
-                        </button>
-            <button
-              className="btn btn-link"
-              type="button"
-              onClick={() => handleAddIngredient()}
-            >
-              +
-                        </button>
-        </div>
+            <div class="btn-group float-right" role="group" aria-label="Basic example">
+              <button
+                className="btn btn-secondary"
+                type="button"
+                onClick={() => handleRemoveIngredient()}
+              >
+                -
+              </button>
+              <button
+                className="btn btn-secondary"
+                type="button"
+                onClick={() => handleAddIngredient()}
+              >
+                +
+              </button>
 
-         {/*nb eaters*/}
-         <div className={'form-group' + (submitted && !nbEaters ? ' has-error' : '')}>
-          <label htmlFor="name">How many people can eat with this meal ?</label>
-          <input type="number" min="0" className="form-control" name="name" value={nbEaters} onChange={(e) => setNbEaters(e.target.value)} />
-          {submitted && !nbEaters &&
-            <div className="help-block">number of eaters is required</div>
-          }
-        </div>
+            </div>
+            <br></br>
+    
 
-        {/* img 
+          {/*nb eaters*/}
+          <div className={'form-group' + (submitted && !nbEaters ? ' has-error' : '')}>
+            <label htmlFor="name">How many people can eat with this meal ?</label>
+            <input type="number" min="0" className="form-control" name="name" value={nbEaters} onChange={(e) => setNbEaters(e.target.value)} />
+            {submitted && !nbEaters &&
+              <div className="help-block">number of eaters is required</div>
+            }
+          </div>
+
+          {/* img 
         <div className={'form-group' + (submitted && !imgUrl ? ' has-error' : '')}>
           <label htmlFor="name">Add an image to make your recipe beautiful</label>
           <input type="file" a  min="0"  onChange={handleImageUpload} />
@@ -301,74 +322,70 @@ const CreateRecipePage = () => {
 */}
 
 
-      
-
-      <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center"
-      }}
-    >
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageUpload}
-        ref={imageUploader}
-        style={{
-          display: "none"
-        }}
-      />
-      <div
-        style={{
-          maxWidth:'300px',
-          maxHeight:'300px',
-          width: '75px',
-          height: '75px',
-          border: "1px dashed black"
-        }}
-        onClick={() => imageUploader.current.click()}
-      >
-        <img
-          ref={uploadedImage}
-          style={{
-            maxWidth:'300px',
-          maxHeight:'300px',
-          }}
-        />
-      </div>
-      Click to upload Image
-      <button onClick={onUpload} className='btn center'>
-          Get Url 
-        </button>
-      <label htmlFor="name">You can put an url from the web</label>
-      <input className='file-path validate' type='text' value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} />
-    </div>
-
-    
-       
-        {/*additionnal note */}
-        <div className={'form-group' + (submitted && !additionnalNoteFromAuthor ? ' has-error' : '')}>
-          <label htmlFor="description">additionnal note from author</label>
-          <textarea type="description" className="form-control" name="description" value={additionnalNoteFromAuthor} onChange={(e) => setAdditionnalNoteFromAuthor(e.target.value)} />
-        </div>
 
 
-        {/*submit*/}
-        <div className="submit-button">
-          <button
-            className="btn btn-primary mr-2"
-            type="submit"
-            onSubmit={handleSubmit}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
           >
-            Save
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              ref={imageUploader}
+              style={{
+                display: "none"
+              }}
+            />
+            <div class="row">
+              <div class="col">
+                <button type="button" class="btn btn-primary btn-lg" onClick={() => imageUploader.current.click()}>upload image</button>
+              </div>
+              <div class="col">
+                Your image:
+          <img
+                  ref={uploadedImage}
+                  style={{
+                    maxWidth: '300px',
+                    maxHeight: '300px',
+                  }}
+                />
+              </div>
+            </div>
+            {submitted && !image && !imgUrl &&
+              <div className="help-block">Set an image or add the url on your own</div>
+            }
+            <label htmlFor="name">Image URL from the web</label>
+            <input className='file-path validate' type='text' value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} />
+          </div>
+
+
+
+          {/*additionnal note */}
+          <div className={'form-group' + (submitted && !additionnalNoteFromAuthor ? ' has-error' : '')}>
+            <label htmlFor="description">additionnal note from author</label>
+            <textarea type="description" className="form-control" name="description" value={additionnalNoteFromAuthor} onChange={(e) => setAdditionnalNoteFromAuthor(e.target.value)} />
+          </div>
+
+
+          {/*submit*/}
+          <div className="submit-button">
+            <button
+              className="btn btn-primary mr-2"
+              type="submit"
+              onSubmit={handleSubmit}
+            >
+              Save
               </button>
-        </div>
+          </div>
       </form>
     </div>
   )
 
 }
 
-export {CreateRecipePage }; 
+export {CreateRecipePage}; 
