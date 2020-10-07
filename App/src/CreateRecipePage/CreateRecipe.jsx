@@ -13,17 +13,19 @@ import { ingredientActions } from "../_actions";
 
 
 const CreateRecipePage = () => {
-  const [recipeName, setName] = useState(" ");
-  const [description, setDescription] = useState(" ");
-  const [origin, setOrigin] = useState(" ");
+  const [recipeName, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [origin, setOrigin] = useState("");
   const [nbEaters, setNbEaters] = useState(0);
-  const [imgUrl, setImgUrl] = useState(" ");
-  const [additionnalNoteFromAuthor, setAdditionnalNoteFromAuthor] = useState(" ");
+  const [imgUrl, setImgUrl] = useState("");
+  const [additionnalNoteFromAuthor, setAdditionnalNoteFromAuthor] = useState("");
   const [steps, setSteps] = useState([{ content: " " }]);
   const [ingredients, setIngredients] = useState([{ name: " ", quantity: 0, unit: "" }]);
 
   const [submitted, setSubmitted] = useState(false);
   const [ingredientsOptions, setIngredientsOptions] = useState(null);
+
+  const [imageLoading, setImageLoading] = useState(false);
 
   const [image, setImage] = useState('');
 
@@ -33,6 +35,7 @@ const CreateRecipePage = () => {
   const imageUploader = useRef(null);
 
   const handleImageUpload = e => {
+   
     setImage(e.target.files[0]);
     const [file] = e.target.files;
     if (file) {
@@ -44,12 +47,14 @@ const CreateRecipePage = () => {
       };
       reader.readAsDataURL(file);
     }
+    setImageLoading(true);
+    getUrlForImage(e.target.files[0]);
   };
 
-  const getUrlForImage = () => {
-    if (image) {
+  const getUrlForImage = (file) => {
+    if (file) {
       const formData = new FormData();
-      formData.append('file', image);
+      formData.append('file', file);
       formData.append('upload_preset', presetForCloudUpload);
       const options = {
         method: 'POST',
@@ -90,31 +95,15 @@ const CreateRecipePage = () => {
     e.preventDefault();
     setSubmitted(true);
 
-    const valid = (recipeName && description && ingredients && nbEaters && steps && (imgUrl || image));
+    const valid = (recipeName && description && ingredients && nbEaters && steps && imgUrl);
     if (valid) {
-      const UrlPromise = new Promise((resolve, reject) => {
-        if(image)
-        {
-          const url = getUrlForImage();
-          resolve(url);
-        }
-        else
-        {
-          const url = imgUrl;
-          resolve(url);
-        }
-     });
-       
-      UrlPromise.then((url) => {
-        console.log(url);
-          setImgUrl(url);
           const recipe = {
             'name': recipeName,
             'description': description,
             'nbEaters': nbEaters,
             'additionnalNoteFromAuthor': additionnalNoteFromAuthor,
             'origin': origin,
-            'imgUrl': imgUrl,
+            'imgUrl': url,
             'steps': steps.map(s => s.content)
             //'ingredients' : ingredients
           }
@@ -122,9 +111,8 @@ const CreateRecipePage = () => {
           console.log("recipe before addRecipe", recipe);
     
           recipeActions.addRecipe(recipe);
-        });
+        }
      
-    }
   };
 
   const handleStepChange = (index, event) => {
@@ -325,12 +313,7 @@ const CreateRecipePage = () => {
 
 
           <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
+         
           >
             <input
               type="file"
@@ -341,17 +324,17 @@ const CreateRecipePage = () => {
                 display: "none"
               }}
             />
-            <div class="row">
-              <div class="col">
-                <button type="button" class="btn btn-primary btn-lg" onClick={() => imageUploader.current.click()}>upload image</button>
+            <div class="form-row fluid">
+              <div class="form-group col-sm-4">
+                <button type="button" class="btn btn-primary " onClick={() => imageUploader.current.click()}>upload image</button>
               </div>
-              <div class="col">
-                Your image:
+              <div class="form-group col-sm-8">
+             
           <img
                   ref={uploadedImage}
                   style={{
-                    maxWidth: '300px',
-                    maxHeight: '300px',
+                    maxWidth: '250px',
+                    maxHeight: '100%',
                   }}
                 />
               </div>
@@ -359,7 +342,11 @@ const CreateRecipePage = () => {
             {submitted && !image && !imgUrl &&
               <div className="help-block">Set an image or add the url on your own</div>
             }
-            <label htmlFor="name">Image URL from the web</label>
+            <label htmlFor="name">Image URL</label>
+            {imageLoading && !imgUrl && 
+            <div class="spinner-border" role="status">
+               <span class="sr-only">Loading...</span>
+            </div>}
             <input className='file-path validate' type='text' value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} />
           </div>
 
