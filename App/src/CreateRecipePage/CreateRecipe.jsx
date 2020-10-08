@@ -103,9 +103,9 @@ const CreateRecipePage = () => {
             'nbEaters': nbEaters,
             'additionnalNoteFromAuthor': additionnalNoteFromAuthor,
             'origin': origin,
-            'imgUrl': url,
-            'steps': steps.map(s => s.content)
-            //'ingredients' : ingredients
+            'imgUrl': imgUrl,
+            'steps': steps.map(s => s.content),
+            'ingredients' : ingredients
           }
     
           console.log("recipe before addRecipe", recipe);

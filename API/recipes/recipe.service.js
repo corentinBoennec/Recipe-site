@@ -1,6 +1,8 @@
 const db = require('_helpers/db');
 const models = require("../models");
 const userService = require("../users/user.service");
+const { collection } = require('../models/userModel');
+const { ingredient } = require('../models');
 
 const Recipe = db.Recipe;
 const User = db.User;
@@ -19,7 +21,7 @@ module.exports = {
 };
 
 
-async function create(recipeParams) {
+async function create(recipeParams, id) {
 
     if (await Recipe.findOne({ name: recipeParams.name })) {
         throw 'Recipe name "' + recipeParams.name + '" is already taken';
@@ -44,7 +46,21 @@ async function create(recipeParams) {
     recipeParams.steps.forEach(element => {
         recipe.steps.push(element);
     });
-        
+
+    recipeParams.ingredients.forEach(ingredient => {
+        recipe.ingredients.push(ingredient);
+    });
+
+    if(recipeParams.additionalNoteFromAuthor)
+        recipe.additionalNoteFromAuthor = recipeParams.additionalNoteFromAuthor;
+
+    if(id)
+        recipe.author = id;
+
+
+
+    console.log('recipe' , recipe)
+    
     // save recipe
     await recipe.save();
 

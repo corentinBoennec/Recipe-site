@@ -34,7 +34,7 @@ module.exports = router;
 
 function create(req, res, next) {
     console.log(req.body);
-    recipeService.create(req.body)
+    recipeService.create(req.body, req.user.sub)
         .then(recipe => res.json(recipe))
         .catch(err => next(err));
 }
