@@ -7,8 +7,8 @@ const Ingredient = new Schema({
     name: {type: String, required: true, unique: true},
     description: String,
     origin: {type: String, default: 'unknown'},/*,
-    subsitutes: [Ingredients],
-    image */
+    subsitutes: [Ingredients],*/
+    image : String,
     type : {type : String, enum : 
         [
             'vegetarian',

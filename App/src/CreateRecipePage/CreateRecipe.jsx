@@ -1,6 +1,5 @@
 import React, { useState, Fragment, useEffect, useRef } from "react";
 import Select from 'react-select'
-import { Link } from 'react-router-dom';
 import { useDispatch, connect, useSelector } from 'react-redux';
 
 import { alertActions } from '../_actions';

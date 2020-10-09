@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useDispatch, useSelector, ReactReduxContext } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { NavBar } from '../NavBar';
 import { userActions, recipeActions  } from '../_actions';
 
@@ -17,7 +16,6 @@ function HomePage() {
 
     useEffect(() => {
         recipeActions.getAll().then(value => {
-            console.log("value before :" , value);
             if(value.length % 3 == 1){
                 value.push(value[0]);
                 value.push(value[1]);
@@ -25,7 +23,6 @@ function HomePage() {
             if(value.length % 3 == 2){
                 value.push(value[0]);
             }
-            console.log("value after :" , value);
             setRecipe(value);
 
             
@@ -42,21 +39,18 @@ function HomePage() {
         });
     }, []);
 
-    console.log("recipe :" , recipes);
-    console.log("grouped : " , groupedRecipes);
-
     function handleDeleteUser(id) {
         dispatch(userActions.delete(id));
     }
 
-    var myImage = [new Image(338, 253), new Image(338, 253), new Image(338, 253)];
+   
 
 
     return (
         <div className="container-fluid">
 
             <NavBar></NavBar>
-
+            <a href= "/recipes/dxfd" >Create my own </a>
             {groupedRecipes.map((groupe, index) =>
                             <div className="card-deck deck-homePage" >
                             <div className="card">
