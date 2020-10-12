@@ -1,0 +1,83 @@
+
+body{
+    background-image: url("../../images/background_image.jpg");
+    background-attachment: fixed;
+}
+
+.jumbotron{
+    background-color: rgb(238, 238, 238, 0.7 );
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.createRecipeForm{
+    color : rgb(25, 12, 3);
+    font-family: cursive;
+}
+
+.createRecipeTitle{
+    color : rgb(15, 6, 0);
+    font-family: cursive;
+}
+
+.profile-picture-navbar{
+    width: 40px;
+    margin-left: 0.5rem;
+}
+
+.clickable-text{
+    border : none;
+    background: none;
+}
+
+.main-navbar{
+    border-radius: 5px;
+}
+
+.username-navbar{
+    margin-bottom: 0;
+    margin-left: 0.5rem;
+}
+
+.numberCircle {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+
+    background: #fff;
+    border: 2px solid #666;
+    color: #666;
+    text-align: center;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right: 8px;
+    font: 32px Arial, sans-serif;
+}
+
+.text-centered{
+    text-align: center;
+}
+
+.nopad{
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.deck-homePage{
+    margin-top : 1rem;
+    margin-bottom : 1rem;
+}
+
+.card-img-resized{
+    height: 250px;
+    width: 338px;
+}
+
+.margin-bot {
+    margin-bottom: 1em;
+}
+
+textarea {
+        resize: none; 
+}
+    
